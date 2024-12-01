@@ -1,0 +1,70 @@
+---
+# tasks file for front
+
+- name: Ensure destination directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/{{ gitName }}/frontend"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Move {{ gitDir }}/App/frontend to home directory of user {{ ansible_env.HOME }}/{{ gitName }}
+  copy:
+    src: "{{ gitDir }}/App/frontend"
+    dest: "{{ ansible_env.HOME }}/{{ gitName }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: yes
+  become: yes
+
+# install nvm
+- name: Install nvm
+  shell: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+
+
+- name: Export NVM_DIR and install node 21.7.0 and vite, then install dependencies
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    nvm install 21.7.0
+    nvm alias default 21.7.0
+    npm install -g vite
+    cd {{ ansible_env.HOME }}/{{ gitName }}/frontend/vue-tfg
+    npm install
+
+- name: Ensure screen is installed
+  become: yes
+  apt:
+    name: screen
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure screen is installed
+  become: yes
+  yum:
+    name: screen
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+- name: Run keycloak on background
+  shell: |   
+    cd {{ ansible_env.HOME }}/{{ gitName }}/frontend/keycloak-24.0.1/bin
+    screen -dmS frontend_session ./kc.sh start-dev
+  become: yes
+
+- name: Run vue on background
+  shell: | 
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+    cd {{ ansible_env.HOME }}/{{ gitName }}/frontend/vue-tfg
+    screen -dmS frontend_session npm run dev
+  
+
+
+
+
+
+

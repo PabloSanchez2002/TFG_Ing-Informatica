@@ -1,0 +1,8 @@
+{
+    "realm": "TFG_Pablo",
+    "auth-server-url": "http://localhost:8080",
+    "ssl-required": "external",
+    "resource": "vue-tfg",
+    "public-client": false,
+    "confidential-port": 0
+}

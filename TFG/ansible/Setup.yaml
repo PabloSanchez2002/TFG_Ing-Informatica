@@ -1,0 +1,53 @@
+- name: Despliegue de herramienta DITS
+  hosts: all
+  # become: true
+  vars:
+    role: ""
+    gitRepo: ""
+    gitName: "dits"
+    gitDir: "/tmp/dits"
+
+  tasks:
+
+    - name: Install git
+      apt:
+        name: git
+        state: present
+      become: yes
+
+    - name: Download repository
+      git:
+        repo: "{{ gitRepo }}"
+        dest: "{{ gitDir }}"
+        force: yes
+        clone: yes
+        update: yes
+        recursive: yes
+
+    - name: Incluir rol front si role es front
+      include_role:
+        name: back
+      when: role == "full-stack"
+      
+    - name: Incluir rol front y back si role es full-stack
+      include_role:
+        name: front
+      when: role == "full-stack"
+    
+    - name: Incluir rol front si role es database
+      include_role:
+        name: front
+      when: role == "front"
+
+    - name: Incluir rol back si role es cache
+      include_role:
+        name: back
+      when: role == "back"
+
+
+
+# ansible-playbook -i "192.168.222.131," --private-key=../App/backend/keys/delonia -e "ansible_user=delonia role=back gitRepo=https://gestordespliegues:delonia123@scm.delonia.com/scm-git/delonia/devops/dits" Setup.yaml
+
+# ansible-playbook -i "192.168.222.131," --private-key=../App/backend/keys/delonia -e "ansible_user=delonia role=back gitRepo=https://gestordespliegues:delonia123@scm.delonia.com/scm-git/delonia/devops/dits" Setup.yaml
+# ansible-playbook -i 192.168.222.131, --private-key=./keys/delonia                -e "ansible_user=delonia role=front gitRepo=https://gestordespliegues:delonia123@scm.delonia.com/scm-git/delonia/devops/dits" ./repos/delonia/devops/dits/ansible/Setup.yaml
+# ansible-galaxy init myrole                                                                                                  https://gestordespliegues:delonia123@scm.delonia.com/scm-git/delonia/devops/dits

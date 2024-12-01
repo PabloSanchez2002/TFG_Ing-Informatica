@@ -1,0 +1,46 @@
+./gradlew bootRun
+./gradlew clean build --refresh-dependencies
+
+#mongo deployment
+sudo apt-get install gnupg curl
+curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+sudo touch /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+sudo apt-get update
+
+sudo apt-get install -y mongodb-org
+sudo systemctl start mongod
+
+sudo systemctl enable mongod
+
+para probar -> 
+mongosh
+
+#Comandos mongo
+use instancias
+db.createCollection("despliegue")
+db.createCollection("proyectos")
+db.despliegue.insertOne({ name: "Pablo", age: 22 })
+db.despliegue.find()
+
+show dbs
+show collections
+
+
+ansible-galaxy init <role_name>
+
+
+
+roles/
+├── webserver
+│   ├── tasks
+│   │   └── main.yml
+│   └── ...
+├── database
+│   ├── tasks
+│   │   └── main.yml
+│   └── ...
+└── cache
+    ├── tasks
+    │   └── main.yml
+    └── ...

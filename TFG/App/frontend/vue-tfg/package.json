@@ -1,0 +1,41 @@
+{
+  "name": "vue-tfg",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "imports": {
+    "#components/*": "./src/components/*",
+    "#views/*": "./src/views/*",
+    "#router": "./src/router",
+    "#assets/*": "./src/assets/*",
+    "#security/*": "./src/security/*",
+    "#images/*": "./src/images/*",
+    "#config/*": "./src/config/*",
+    "#types/*": "./src/types/*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/vue-fontawesome": "^3.0.6",
+    "@keycloak/keycloak-admin-client": "^24.0.2",
+    "axios": "^1.6.8",
+    "keycloak-js": "^24.0.1",
+    "tailwind": "^4.0.0",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/node": "^20.11.30",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "naive-ui": "^2.38.1",
+    "typescript": "^5.4.3",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.6"
+  }
+}

@@ -1,0 +1,134 @@
+---
+# tasks file for back
+# move {{ gitDir }}/back to home of user
+
+- name: Ensure destination directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/{{ gitName }}/backend"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Move {{ gitDir }}/App/backend to home directory of user {{ ansible_env.HOME }}/{{ gitName }}
+  copy:
+    src: "{{ gitDir }}/App/backend"
+    dest: "{{ ansible_env.HOME }}/{{ gitName }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    remote_src: yes
+  become: yes
+
+# install java 21
+- name: Install Java 21
+  apt:
+    name: openjdk-21-jdk
+    state: present
+  become: yes
+
+  # install gradle
+- name: Install Gradle
+  apt:
+    name: gradle
+    state: present
+  become: yes
+
+# install ansible and send "Y" to the prompt
+- name: Install Ansible using apt
+  apt:
+    name: ansible
+    state: present
+    update_cache: yes
+    install_recommends: no
+    force_apt_get: yes
+  become: yes
+
+# install mongodb
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gnupg
+    - curl
+  become: yes
+
+- name: Download MongoDB GPG key
+  shell: |
+    curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | sudo gpg --batch --yes -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+  args:
+    executable: /bin/bash
+  become: yes
+
+
+- name: Create MongoDB sources list file
+  file:
+    path: /etc/apt/sources.list.d/mongodb-org-7.0.list
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+
+- name: Add MongoDB repository to sources list
+  lineinfile:
+    path: /etc/apt/sources.list.d/mongodb-org-7.0.list
+    line: "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+    create: yes
+  become: yes
+
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Install MongoDB
+  apt:
+    name: mongodb-org
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Start MongoDB service
+  service:
+    name: mongod
+    state: started
+    enabled: yes
+  become: yes
+
+# task to cd to back and run gradle build on /App/backend/./gradlew clean build --refresh-dependencies
+- name: Build back
+  command: ./gradlew clean build --refresh-dependencies
+  args:
+    chdir: "{{ ansible_env.HOME }}/{{ gitName }}/backend"
+  become: yes
+
+- name: Ensure screen is installed
+  become: yes
+  apt:
+    name: screen
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure screen is installed
+  become: yes
+  yum:
+    name: screen
+    state: present
+  when: ansible_os_family == 'RedHat'
+
+# task to cd to back and run gradle bootRun on "{{ ansible_env.HOME }}/{{ gitName }}/backend"./gradlew bootRun but detach the process
+- name: Run back in detached screen session
+  command: screen -dmS backend_session ./gradlew bootRun
+  args:
+    chdir: "{{ ansible_env.HOME }}/{{ gitName }}/backend"
+  # become: yes
+
+
+
+
+
+
+
+
+
+
